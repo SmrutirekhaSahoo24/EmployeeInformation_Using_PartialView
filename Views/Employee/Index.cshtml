@@ -1,0 +1,99 @@
+﻿@model IEnumerable<EmployeeInformation.Models.Employee>
+@{
+    ViewBag.Title = "Employee Information";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Employee Details</h2>
+
+        <!-- Alerts for messages -->
+        @if (TempData["InfoMessage"] != null)
+        {
+            <div class="alert alert-info">
+                <strong>Info! </strong> @TempData["InfoMessage"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span>X</span>
+                </button>
+            </div>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <strong>Success! </strong> @TempData["SuccessMessage"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span>X</span>
+                </button>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <strong>Error! </strong> @TempData["ErrorMessage"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span>X</span>
+                </button>
+            </div>
+        }
+
+        <!-- Button to add new employee -->
+        <p>
+            @Html.ActionLink("Add New Employee", null, new { @class = "btn btn-primary" })
+        </p>
+
+        <!-- Table to display employee details -->
+        <table class="table">
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Emp_Id)</th>
+                <th>@Html.DisplayNameFor(model => model.Emp_Name)</th>
+                <th>@Html.DisplayNameFor(model => model.Designation)</th>
+                <th>Actions</th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Emp_Id)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Emp_Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Designation)</td>
+                    <td>
+                        <!-- Edit and Delete links -->
+                        @Html.ActionLink("Edit", "Create", new { id = item.Emp_Id }, new { @class = "btn btn-primary edit-button" }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.Emp_Id }, new { @class = "btn btn-danger" })
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+
+    <div class="col-md-6" id="partialView">
+        <!-- Partial view to display the Create form -->
+        @Html.Partial("Create", new EmployeeInformation.Models.Employee())
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Load the Create form when the page loads
+            $('#partialView').load("/Employee/Create");
+
+            // Handle edit button click     
+            $('.edit-button').click(function (e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                $.get(url, function (data) {
+                    // Check if the partial view contains an employee ID input field
+                    var isEditMode = $(data).find('#Emp_Id').length > 0;
+                    // Update the form action based on edit mode
+                    $('#partialView').html(data);
+                    if (isEditMode) {
+                        $('#partialView form').attr('action', url);
+                    }
+                });
+            });
+        });
+    </script>
+}
